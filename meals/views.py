@@ -7,6 +7,15 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')  # or HttpResponse("Home page")
+
+
+
+
 User = get_user_model()
 
 def dish_list(request):
