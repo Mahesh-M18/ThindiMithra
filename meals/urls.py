@@ -1,5 +1,13 @@
 from django.urls import path
 from . import views
+# tindimithra/urls.py or meals/urls.py
+from django.urls import path
+from meals import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+]
+
 
 app_name = 'meals'
 
