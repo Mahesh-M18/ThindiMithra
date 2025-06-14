@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Chef Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'meals:chef_dashboard' %}">Chef Dashboard</a></li>
+                    <li class="breadcrumb-item active">Manage Orders</li>
+                </ol>
+            </nav>
+
+            <h2 class="mb-4">Manage Orders</h2>
+
+            {% if orders %}
+                <div class="row">
+                    {% for order in orders %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Order #{{ order.id }}</h5>
+                                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'confirmed' %}bg-info{% elif order.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Customer:</strong> {{ order.customer.get_full_name }}</p>
+                                    <p><strong>Dish:</strong> {{ order.dish.name }}</p>
+                                    <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                                    <p><strong>Total Amount:</strong> ₹{{ order.total_price }}</p>
+                                    <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+                                    <p><strong>Delivery Time:</strong> {{ order.delivery_time|date:"F d, Y H:i" }}</p>
+                                    <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    {% if order.status == 'pending' %}
+                                        <form method="post" action="{% url 'meals:update_order_status' order.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button type="submit" class="btn btn-success btn-sm">Confirm Order</button>
+                                        </form>
+                                        <form method="post" action="{% url 'meals:update_order_status' order.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</button>
+                                        </form>
+                                    {% elif order.status == 'confirmed' %}
+                                        <form method="post" action="{% url 'meals:update_order_status' order.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="preparing">
+                                            <button type="submit" class="btn btn-info btn-sm">Start Preparing</button>
+                                        </form>
+                                    {% elif order.status == 'preparing' %}
+                                        <form method="post" action="{% url 'meals:update_order_status' order.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="ready">
+                                            <button type="submit" class="btn btn-primary btn-sm">Mark as Ready</button>
+                                        </form>
+                                    {% elif order.status == 'ready' %}
+                                        <form method="post" action="{% url 'meals:update_order_status' order.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="delivered">
+                                            <button type="submit" class="btn btn-success btn-sm">Mark as Delivered</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No orders found.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Dish, Order, Subscription, Review
-from .forms import DishForm
+from .forms import DishForm, SubscriptionForm
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def dish_list(request):
     dishes = Dish.objects.filter(is_available=True)
@@ -123,39 +126,52 @@ def home(request):
 
 @login_required
 def subscription_list(request):
-    if request.user.is_chef:
-        subscriptions = Subscription.objects.filter(chef=request.user)
-    else:
-        subscriptions = Subscription.objects.filter(customer=request.user)
+    subscriptions = Subscription.objects.filter(customer=request.user).order_by('-created_at')
     return render(request, 'meals/subscription_list.html', {'subscriptions': subscriptions})
 
 @login_required
 def subscription_detail(request, subscription_id):
     if request.user.is_chef:
         subscription = get_object_or_404(Subscription, id=subscription_id, chef=request.user)
+        template = 'meals/chef_subscription_detail.html'
     else:
         subscription = get_object_or_404(Subscription, id=subscription_id, customer=request.user)
-    return render(request, 'meals/subscription_detail.html', {'subscription': subscription})
+        template = 'meals/customer_subscription_detail.html'
+    return render(request, template, {'subscription': subscription})
 
 @login_required
-def create_subscription(request):
+def create_subscription(request, chef_id):
+    chef = get_object_or_404(User, id=chef_id, is_chef=True)
+    
     if request.method == 'POST':
-        chef_id = request.POST.get('chef')
-        chef = get_object_or_404(User, id=chef_id, is_chef=True)
-        plan_name = request.POST.get('plan_name')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        subscription = Subscription.objects.create(
-            customer=request.user,
-            chef=chef,
-            plan_name=plan_name,
-            start_date=start_date,
-            end_date=end_date,
-            status='pending'
-        )
-        messages.success(request, 'Subscription created successfully!')
-        return redirect('meals:subscription_detail', subscription_id=subscription.id)
-    return render(request, 'meals/subscription_form.html')
+        form = SubscriptionForm(request.POST)
+        if form.is_valid():
+            subscription = form.save(commit=False)
+            subscription.customer = request.user
+            subscription.chef = chef
+            subscription.save()
+            messages.success(request, 'Subscription created successfully!')
+            return redirect('meals:subscription_detail', subscription_id=subscription.id)
+    else:
+        form = SubscriptionForm()
+    
+    return render(request, 'meals/subscription_form.html', {
+        'form': form,
+        'chef': chef
+    })
+
+@login_required
+def cancel_subscription(request, subscription_id):
+    subscription = get_object_or_404(Subscription, id=subscription_id, customer=request.user)
+    
+    if subscription.is_active:
+        subscription.status = 'cancelled'
+        subscription.save()
+        messages.success(request, 'Subscription cancelled successfully!')
+    else:
+        messages.error(request, 'Cannot cancel this subscription.')
+    
+    return redirect('meals:subscription_detail', subscription_id=subscription.id)
 
 @login_required
 def review_list(request):
@@ -200,3 +216,72 @@ def filter_results(request):
     if is_available in ['true', 'false']:
         dishes = dishes.filter(is_available=(is_available == 'true'))
     return render(request, 'meals/filter_results.html', {'dishes': dishes})
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    if order.status == 'pending':
+        order.status = 'cancelled'
+        order.save()
+        messages.success(request, 'Order cancelled successfully!')
+    else:
+        messages.error(request, 'Cannot cancel this order.')
+    return redirect('meals:order_detail', order_id=order.id)
+
+@login_required
+def chef_orders(request):
+    if not request.user.is_chef:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('meals:dish_list')
+    
+    orders = Order.objects.filter(dish__chef=request.user).order_by('-created_at')
+    return render(request, 'meals/chef_orders.html', {'orders': orders})
+
+@login_required
+def update_order_status(request, order_id):
+    if not request.user.is_chef:
+        messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('meals:dish_list')
+    
+    order = get_object_or_404(Order, id=order_id, dish__chef=request.user)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            messages.success(request, f'Order status updated to {order.get_status_display()}.')
+        else:
+            messages.error(request, 'Invalid status.')
+    
+    return redirect('meals:chef_orders')
+
+def chef_list(request):
+    chefs = User.objects.filter(is_chef=True)
+    return render(request, 'meals/chef_list.html', {'chefs': chefs})
+
+@login_required
+def chef_subscriptions(request):
+    if not request.user.is_chef:
+        messages.error(request, 'You must be a chef to access this page.')
+        return redirect('meals:chef_dashboard')
+    
+    subscriptions = Subscription.objects.filter(chef=request.user).order_by('-created_at')
+    active_subscriptions = subscriptions.filter(status='active')
+    cancelled_subscriptions = subscriptions.filter(status='cancelled')
+    expired_subscriptions = subscriptions.filter(status='expired')
+    
+    context = {
+        'active_subscriptions': active_subscriptions,
+        'cancelled_subscriptions': cancelled_subscriptions,
+        'expired_subscriptions': expired_subscriptions,
+        'total_subscribers': active_subscriptions.count(),
+        'total_revenue': sum(sub.total_price for sub in active_subscriptions),
+    }
+    return render(request, 'meals/chef_subscriptions.html', context)
+
+def handler404(request, exception):
+    return render(request, '404.html', status=404)
+
+def handler500(request):
+    return render(request, '500.html', status=500)

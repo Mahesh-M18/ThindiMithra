@@ -25,7 +25,7 @@
                     </p>
                     <p class="card-text"><strong>Price: ₹{{ dish.price }}</strong></p>
                     {% if user.is_authenticated and not user.is_chef %}
-                        <a href="#" class="btn btn-primary">Order Now</a>
+                        <a href="{% url 'meals:dish_detail' dish.id %}" class="btn btn-primary">Order Now</a>
                     {% endif %}
                 </div>
             </div>

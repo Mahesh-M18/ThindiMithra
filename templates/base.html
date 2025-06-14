@@ -42,11 +42,22 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'meals:dish_list' %}">All Meals</a></li>
-                            {% if user.is_authenticated and not user.is_chef %}
-                                <li><a class="dropdown-item" href="{% url 'meals:customer_dashboard' %}">My Orders</a></li>
-                            {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'meals:chef_list' %}">All Chefs</a></li>
                         </ul>
                     </li>
+
+                    <!-- Customer Section -->
+                    {% if user.is_authenticated and not user.is_chef %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            My Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'meals:customer_dashboard' %}">My Orders</a></li>
+                            <li><a class="dropdown-item" href="{% url 'meals:subscription_list' %}">My Subscriptions</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
 
                     <!-- Chef Section -->
                     {% if user.is_authenticated and user.is_chef %}

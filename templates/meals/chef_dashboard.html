@@ -3,102 +3,79 @@
 {% block title %}Chef Dashboard - Tindimithra{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <h1>Chef Dashboard</h1>
-        <p class="lead">Welcome, {{ user.username }}!</p>
-    </div>
-</div>
-
-<div class="row">
-    <!-- My Dishes Section -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">My Dishes</h5>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Chef Dashboard</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Orders</h5>
+                            <p class="card-text">Manage your orders and deliveries</p>
+                            <a href="{% url 'meals:chef_orders' %}" class="btn btn-primary">View Orders</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Subscriptions</h5>
+                            <p class="card-text">Manage your meal subscriptions</p>
+                            <a href="{% url 'meals:chef_subscriptions' %}" class="btn btn-success">View Subscriptions</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Menu</h5>
+                            <p class="card-text">Manage your dishes and menu</p>
+                            <a href="{% url 'meals:dish_list' %}" class="btn btn-info">View Menu</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <a href="{% url 'meals:add_dish' %}" class="btn btn-primary mb-3">Add New Dish</a>
-                {% if dishes %}
-                    <div class="list-group">
-                        {% for dish in dishes %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ dish.name }}</h5>
-                                    <small>₹{{ dish.price }}</small>
+
+            <h3 class="mb-3">Recent Orders</h3>
+            {% if recent_orders %}
+                <div class="row">
+                    {% for order in recent_orders %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Order #{{ order.id }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">Placed on: {{ order.created_at|date:"F d, Y" }}</small>
+                                    </p>
+                                    <div class="mb-3">
+                                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'confirmed' %}bg-info{% elif order.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <p class="card-text">
+                                        <strong>Dish:</strong> {{ order.dish.name }}
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Quantity:</strong> {{ order.quantity }}
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Total Amount:</strong> ₹{{ order.total_price }}
+                                    </p>
                                 </div>
-                                <p class="mb-1">{{ dish.description }}</p>
-                                <small>
-                                    {% if dish.is_veg %}Vegetarian{% else %}Non-Vegetarian{% endif %} |
-                                    {% if dish.is_available %}Available{% else %}Not Available{% endif %}
-                                </small>
-                                <div class="mt-2">
-                                    <a href="{% url 'meals:edit_dish' dish.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{% url 'meals:chef_orders' %}" class="btn btn-primary btn-sm">Manage Order</a>
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>You haven't added any dishes yet.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Orders Section -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Orders</h5>
-            </div>
-            <div class="card-body">
-                {% if orders %}
-                    <div class="list-group">
-                        {% for order in orders %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">Order #{{ order.id }}</h5>
-                                    <small>{{ order.created_at|date:"M d, Y" }}</small>
-                                </div>
-                                <p class="mb-1">{{ order.customer.username }}</p>
-                                <small>Status: {{ order.get_status_display }}</small>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No orders yet.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Subscriptions Section -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Active Subscriptions</h5>
-            </div>
-            <div class="card-body">
-                {% if subscriptions %}
-                    <div class="list-group">
-                        {% for subscription in subscriptions %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ subscription.customer.username }}</h5>
-                                    <small>{{ subscription.get_plan_display }}</small>
-                                </div>
-                                <p class="mb-1">
-                                    Start Date: {{ subscription.start_date|date:"M d, Y" }}<br>
-                                    End Date: {{ subscription.end_date|date:"M d, Y" }}
-                                </p>
-                                <small>Status: {{ subscription.get_status_display }}</small>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No active subscriptions.</p>
-                {% endif %}
-            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No recent orders found.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

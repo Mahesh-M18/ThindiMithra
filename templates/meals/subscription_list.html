@@ -3,26 +3,46 @@
 {% block title %}My Subscriptions - Tindimithra{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h2 class="mb-4">My Subscriptions</h2>
+<div class="container mt-4">
+    <h2>My Subscriptions</h2>
+    
     {% if subscriptions %}
         <div class="row">
             {% for subscription in subscriptions %}
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm">
+                <div class="col-md-4 mb-4">
+                    <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ subscription.plan_name }}</h5>
-                            <p class="card-text">Chef: {{ subscription.chef.get_full_name }}</p>
-                            <p class="card-text">Status: {{ subscription.status }}</p>
-                            <p class="card-text">Start Date: {{ subscription.start_date }}</p>
-                            <p class="card-text">End Date: {{ subscription.end_date }}</p>
+                            <h5 class="card-title">{{ subscription.chef.get_full_name }}</h5>
+                            <p class="card-text">
+                                <strong>Plan:</strong> {{ subscription.get_plan_display }}<br>
+                                <strong>Status:</strong> 
+                                {% if subscription.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif subscription.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Expired</span>
+                                {% endif %}<br>
+                                <strong>Meals per Week:</strong> {{ subscription.meals_per_week }}<br>
+                                <strong>Price per Meal:</strong> ₹{{ subscription.price_per_meal }}<br>
+                                <strong>Total Price:</strong> ₹{{ subscription.total_price }}
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'meals:subscription_detail' subscription.id %}" class="btn btn-primary">View Details</a>
+                                {% if subscription.status == 'active' %}
+                                    <a href="{% url 'meals:cancel_subscription' subscription.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this subscription?')">Cancel</a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <p>No subscriptions found.</p>
+        <div class="alert alert-info">
+            You don't have any subscriptions yet. 
+            <a href="{% url 'meals:chef_list' %}" class="alert-link">Browse chefs</a> to subscribe to their meal plans.
+        </div>
     {% endif %}
 </div>
 {% endblock %} 

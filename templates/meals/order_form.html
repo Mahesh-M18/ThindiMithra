@@ -9,7 +9,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="mb-4">Order: {{ dish.name }}</h2>
-                    <form method="post">
+                    <form method="post" action="{% url 'meals:create_order' %}?dish={{ dish.id }}">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label class="form-label">Quantity</label>

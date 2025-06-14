@@ -3,15 +3,83 @@
 {% block title %}Subscription Details - Tindimithra{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h2 class="mb-4">Subscription Details</h2>
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">{{ subscription.plan_name }}</h5>
-            <p class="card-text">Chef: {{ subscription.chef.get_full_name }}</p>
-            <p class="card-text">Status: {{ subscription.status }}</p>
-            <p class="card-text">Start Date: {{ subscription.start_date }}</p>
-            <p class="card-text">End Date: {{ subscription.end_date }}</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">{{ subscription.get_plan_display }}</h2>
+                    <h6 class="card-subtitle mb-3 text-muted">Chef: {{ subscription.chef.get_full_name }}</h6>
+                    
+                    <div class="mt-4">
+                        <h5>Subscription Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Status:</strong> 
+                                    <span class="badge {% if subscription.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ subscription.get_status_display }}
+                                    </span>
+                                </p>
+                                <p><strong>Start Date:</strong> {{ subscription.start_date }}</p>
+                                <p><strong>End Date:</strong> {{ subscription.end_date }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Meals per Week:</strong> {{ subscription.meals_per_week }}</p>
+                                <p><strong>Price per Meal:</strong> ₹{{ subscription.price_per_meal }}</p>
+                                <p><strong>Total Price:</strong> ₹{{ subscription.total_price }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Plan Benefits</h5>
+                        <ul class="list-group list-group-flush">
+                            {% if subscription.plan == 'basic' %}
+                                <li class="list-group-item">5 meals per week</li>
+                                <li class="list-group-item">Standard meal options</li>
+                                <li class="list-group-item">Basic nutritional information</li>
+                            {% elif subscription.plan == 'premium' %}
+                                <li class="list-group-item">7 meals per week</li>
+                                <li class="list-group-item">Premium meal options</li>
+                                <li class="list-group-item">Detailed nutritional information</li>
+                                <li class="list-group-item">Priority delivery</li>
+                            {% elif subscription.plan == 'vip' %}
+                                <li class="list-group-item">10 meals per week</li>
+                                <li class="list-group-item">VIP meal options</li>
+                                <li class="list-group-item">Detailed nutritional information</li>
+                                <li class="list-group-item">Priority delivery</li>
+                                <li class="list-group-item">Personalized meal planning</li>
+                                <li class="list-group-item">Direct chef consultation</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        {% if subscription.is_active %}
+                            <a href="{% url 'meals:cancel_subscription' subscription.id %}" 
+                               class="btn btn-danger"
+                               onclick="return confirm('Are you sure you want to cancel this subscription?')">
+                                Cancel Subscription
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'meals:subscription_list' %}" class="btn btn-secondary">Back to Subscriptions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Chef Information</h5>
+                    <p class="card-text">
+                        <strong>Name:</strong> {{ subscription.chef.get_full_name }}<br>
+                        {# <strong>Experience:</strong> {{ subscription.chef.years_of_experience }} years<br> #}
+                        {# <strong>Specialization:</strong> {{ subscription.chef.specialization }} #}
+                    </p>
+                    <a href="{% url 'meals:chef_list' %}" class="btn btn-primary">View All Chefs</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
