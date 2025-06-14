@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Meals - Tindimithra{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Available Meals</h1>
+
+<div class="row">
+    {% for dish in dishes %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if dish.image %}
+                    <img src="{{ dish.image.url }}" class="card-img-top" alt="{{ dish.name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ dish.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ dish.name }}</h5>
+                    <p class="card-text">{{ dish.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            By {{ dish.chef.username }} | 
+                            {% if dish.is_veg %}Vegetarian{% else %}Non-Vegetarian{% endif %}
+                        </small>
+                    </p>
+                    <p class="card-text"><strong>Price: ₹{{ dish.price }}</strong></p>
+                    {% if user.is_authenticated and not user.is_chef %}
+                        <a href="#" class="btn btn-primary">Order Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p class="text-center">No meals available at the moment.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %} 
