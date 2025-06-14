@@ -47,6 +47,10 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.dish.name}"
 
+    @property
+    def total_price(self):
+        return self.dish.price * self.quantity
+
 class Subscription(models.Model):
     DELIVERY_SLOT_CHOICES = [
         ('breakfast', 'Breakfast'),

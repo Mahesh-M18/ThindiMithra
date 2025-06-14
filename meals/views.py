@@ -200,3 +200,42 @@ def filter_results(request):
     if is_available in ['true', 'false']:
         dishes = dishes.filter(is_available=(is_available == 'true'))
     return render(request, 'meals/filter_results.html', {'dishes': dishes})
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    if order.status == 'pending':
+        order.status = 'cancelled'
+        order.save()
+        messages.success(request, 'Order cancelled successfully!')
+    else:
+        messages.error(request, 'Cannot cancel this order.')
+    return redirect('meals:order_detail', order_id=order.id)
+
+@login_required
+def chef_orders(request):
+    if not request.user.is_chef:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('meals:dish_list')
+    
+    orders = Order.objects.filter(dish__chef=request.user).order_by('-created_at')
+    return render(request, 'meals/chef_orders.html', {'orders': orders})
+
+@login_required
+def update_order_status(request, order_id):
+    if not request.user.is_chef:
+        messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('meals:dish_list')
+    
+    order = get_object_or_404(Order, id=order_id, dish__chef=request.user)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            messages.success(request, f'Order status updated to {order.get_status_display()}.')
+        else:
+            messages.error(request, 'Invalid status.')
+    
+    return redirect('meals:chef_orders')

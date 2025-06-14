@@ -8,7 +8,7 @@
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'order_list' %}">My Orders</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'meals:order_list' %}">My Orders</a></li>
                     <li class="breadcrumb-item active">Order #{{ order.id }}</li>
                 </ol>
             </nav>
@@ -28,48 +28,22 @@
                             <h5 class="mb-3">Order Information</h5>
                             <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
                             <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
-                            <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                            <p><strong>Delivery Time:</strong> {{ order.delivery_time|date:"F d, Y H:i" }}</p>
+                            <p><strong>Status:</strong> {{ order.get_status_display }}</p>
                         </div>
                         <div class="col-md-6">
-                            <h5 class="mb-3">Chef Information</h5>
-                            <p><strong>Chef:</strong> {{ order.chef.get_full_name }}</p>
-                            <p><strong>Contact:</strong> {{ order.chef.phone_number }}</p>
+                            <h5 class="mb-3">Dish Information</h5>
+                            <p><strong>Dish:</strong> {{ order.dish.name }}</p>
+                            <p><strong>Chef:</strong> {{ order.dish.chef.get_full_name }}</p>
+                            <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                            <p><strong>Price per item:</strong> ₹{{ order.dish.price }}</p>
+                            <p><strong>Total Price:</strong> ₹{{ order.total_price }}</p>
                         </div>
-                    </div>
-
-                    <h5 class="mb-3">Order Items</h5>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in order.items.all %}
-                                <tr>
-                                    <td>{{ item.dish.name }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>₹{{ item.price }}</td>
-                                    <td>₹{{ item.subtotal }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
-                                    <td><strong>₹{{ order.total_amount }}</strong></td>
-                                </tr>
-                            </tfoot>
-                        </table>
                     </div>
 
                     {% if order.status == 'pending' %}
                     <div class="mt-4">
-                        <a href="{% url 'order_cancel' order.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</a>
+                        <a href="{% url 'meals:order_cancel' order.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</a>
                     </div>
                     {% endif %}
                 </div>

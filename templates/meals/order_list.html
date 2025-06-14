@@ -24,14 +24,17 @@
                                         </span>
                                     </div>
                                     <p class="card-text">
-                                        <strong>Total Amount:</strong> ₹{{ order.total_amount }}
+                                        <strong>Dish:</strong> {{ order.dish.name }}
                                     </p>
                                     <p class="card-text">
-                                        <strong>Items:</strong> {{ order.items.count }}
+                                        <strong>Quantity:</strong> {{ order.quantity }}
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Total Amount:</strong> ₹{{ order.total_price }}
                                     </p>
                                 </div>
                                 <div class="card-footer bg-transparent">
-                                    <a href="{% url 'order_detail' order.id %}" class="btn btn-primary btn-sm">View Details</a>
+                                    <a href="{% url 'meals:order_detail' order.id %}" class="btn btn-primary btn-sm">View Details</a>
                                 </div>
                             </div>
                         </div>

@@ -4,14 +4,17 @@ from . import views
 app_name = 'meals'
 
 urlpatterns = [
-    path('', views.dish_list, name='dish_list'),
+    path('dishes/', views.dish_list, name='dish_list'),
     path('dish/<int:dish_id>/', views.dish_detail, name='dish_detail'),
     path('chef/dashboard/', views.chef_dashboard, name='chef_dashboard'),
     path('chef/dish/add/', views.add_dish, name='add_dish'),
     path('chef/dish/<int:dish_id>/edit/', views.edit_dish, name='edit_dish'),
+    path('chef/orders/', views.chef_orders, name='chef_orders'),
+    path('chef/orders/<int:order_id>/update/', views.update_order_status, name='update_order_status'),
     path('orders/', views.order_list, name='order_list'),
     path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('orders/create/', views.create_order, name='create_order'),
+    path('orders/<int:order_id>/cancel/', views.cancel_order, name='order_cancel'),
     path('subscriptions/', views.subscription_list, name='subscription_list'),
     path('subscriptions/<int:subscription_id>/', views.subscription_detail, name='subscription_detail'),
     path('subscriptions/create/', views.create_subscription, name='create_subscription'),
