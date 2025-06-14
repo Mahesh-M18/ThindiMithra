@@ -149,3 +149,10 @@ if not DEBUG:
 # Custom error pages
 handler404 = 'meals.views.handler404'
 handler500 = 'meals.views.handler500'
+
+PYTHON_VERSION=3.12.0
+SECRET_KEY=your-secret-key-here
+DEBUG=False
+ALLOWED_HOSTS=.onrender.com
+
+DATABASE_URL='postgresql://tindimithra:rqwhxnfeFkOxEIaZ8fszGt1IWhLyJACL@dpg-d16qdmidbo4c73coh2f0-a.oregon-postgres.render.com/tindimithra'
