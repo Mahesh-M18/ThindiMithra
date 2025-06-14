@@ -163,9 +163,6 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
 
-# Custom error pages
-handler404 = 'meals.views.handler404'
-handler500 = 'meals.views.handler500'
 
 # Security settings for production
 if not DEBUG:
