@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>All Chefs</h2>
+    <div class="row">
+        {% for chef in chefs %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ chef.get_full_name }}</h5>
+                        <p class="card-text">Username: {{ chef.username }}</p>
+                        {% if chef.specialization %}
+                            <p class="card-text">Specialization: {{ chef.specialization }}</p>
+                        {% endif %}
+                        <a href="#" class="btn btn-primary disabled">View Profile</a>
+                        <a href="{% url 'meals:create_subscription' chef.id %}" class="btn btn-success">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">No chefs found.</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

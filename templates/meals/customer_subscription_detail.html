@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Subscription Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4>Chef Information</h4>
+                            <p><strong>Name:</strong> {{ subscription.chef.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ subscription.chef.email }}</p>
+                            <p><strong>Phone:</strong> {{ subscription.chef.phone_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Subscription Information</h4>
+                            <p><strong>Status:</strong> 
+                                {% if subscription.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif subscription.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Expired</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Plan:</strong> {{ subscription.get_plan_display }}</p>
+                            <p><strong>Start Date:</strong> {{ subscription.start_date }}</p>
+                            <p><strong>End Date:</strong> {{ subscription.end_date }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4>Meal Details</h4>
+                            <p><strong>Meals per Week:</strong> {{ subscription.meals_per_week }}</p>
+                            <p><strong>Price per Meal:</strong> ₹{{ subscription.price_per_meal }}</p>
+                            <p><strong>Total Price:</strong> ₹{{ subscription.total_price }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Delivery Information</h4>
+                            <p><strong>Delivery Address:</strong> {{ subscription.delivery_address }}</p>
+                            <p><strong>Delivery Instructions:</strong> {{ subscription.delivery_instructions|default:"None" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Actions</h4>
+                            <a href="{% url 'meals:subscription_list' %}" class="btn btn-secondary">Back to Subscriptions</a>
+                            {% if subscription.status == 'active' %}
+                                <a href="{% url 'meals:cancel_subscription' subscription.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this subscription?')">Cancel Subscription</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

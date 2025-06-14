@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class Dish(models.Model):
     chef = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='dishes')
@@ -52,23 +53,40 @@ class Order(models.Model):
         return self.dish.price * self.quantity
 
 class Subscription(models.Model):
-    DELIVERY_SLOT_CHOICES = [
-        ('breakfast', 'Breakfast'),
-        ('lunch', 'Lunch'),
-        ('dinner', 'Dinner'),
+    PLAN_CHOICES = [
+        ('basic', 'Basic Plan'),
+        ('premium', 'Premium Plan'),
+        ('vip', 'VIP Plan'),
     ]
-
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('cancelled', 'Cancelled'),
+        ('expired', 'Expired'),
+    ]
+    
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='subscriptions')
-    chef = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='subscribers')
+    chef = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='chef_subscriptions')
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     start_date = models.DateField()
     end_date = models.DateField()
-    delivery_slot = models.CharField(max_length=20, choices=DELIVERY_SLOT_CHOICES)
-    is_paused = models.BooleanField(default=False)
+    meals_per_week = models.PositiveIntegerField(default=5)
+    price_per_meal = models.DecimalField(max_digits=10, decimal_places=2, default=100.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.customer.username}'s subscription to {self.chef.username}"
+        return f"{self.customer.username}'s {self.get_plan_display()} Subscription"
+
+    @property
+    def total_price(self):
+        weeks = (self.end_date - self.start_date).days // 7
+        return self.meals_per_week * self.price_per_meal * weeks
+
+    @property
+    def is_active(self):
+        return self.status == 'active' and self.end_date >= timezone.now().date()
 
 class Review(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='review')
