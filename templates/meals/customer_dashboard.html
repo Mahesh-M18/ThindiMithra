@@ -1,100 +1,53 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Customer Dashboard - Tindimithra{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <h1>Customer Dashboard</h1>
-        <p class="lead">Welcome, {{ user.username }}!</p>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Recent Orders Section -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Orders</h5>
-            </div>
-            <div class="card-body">
-                {% if orders %}
-                    <div class="list-group">
-                        {% for order in orders %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">Order #{{ order.id }}</h5>
-                                    <small>{{ order.created_at|date:"M d, Y" }}</small>
-                                </div>
-                                <p class="mb-1">
-                                    Chef: {{ order.chef.username }}<br>
-                                    Total: ₹{{ order.total_amount }}
-                                </p>
-                                <small>Status: {{ order.get_status_display }}</small>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No orders yet.</p>
-                {% endif %}
+<div class="container py-5">
+    <h2 class="mb-4">Customer Dashboard</h2>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">My Orders</h5>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <ul class="list-group list-group-flush">
+                            {% for order in orders %}
+                                <li class="list-group-item">
+                                    <h6>{{ order.dish.name }}</h6>
+                                    <p class="mb-0">Quantity: {{ order.quantity }}</p>
+                                    <p class="mb-0">Status: {{ order.status }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No orders found.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Active Subscriptions Section -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Active Subscriptions</h5>
-            </div>
-            <div class="card-body">
-                {% if subscriptions %}
-                    <div class="list-group">
-                        {% for subscription in subscriptions %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ subscription.chef.username }}</h5>
-                                    <small>{{ subscription.get_plan_display }}</small>
-                                </div>
-                                <p class="mb-1">
-                                    Start Date: {{ subscription.start_date|date:"M d, Y" }}<br>
-                                    End Date: {{ subscription.end_date|date:"M d, Y" }}
-                                </p>
-                                <small>Status: {{ subscription.get_status_display }}</small>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No active subscriptions.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Favorite Chefs Section -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Favorite Chefs</h5>
-            </div>
-            <div class="card-body">
-                {% if favorite_chefs %}
-                    <div class="row">
-                        {% for chef in favorite_chefs %}
-                            <div class="col-md-4 mb-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ chef.username }}</h5>
-                                        <p class="card-text">{{ chef.chefprofile.bio|truncatewords:20 }}</p>
-                                        <a href="#" class="btn btn-primary">View Profile</a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No favorite chefs yet.</p>
-                {% endif %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">My Subscriptions</h5>
+                </div>
+                <div class="card-body">
+                    {% if subscriptions %}
+                        <ul class="list-group list-group-flush">
+                            {% for subscription in subscriptions %}
+                                <li class="list-group-item">
+                                    <h6>{{ subscription.chef.get_full_name }}</h6>
+                                    <p class="mb-0">Plan: {{ subscription.plan_name }}</p>
+                                    <p class="mb-0">Status: {{ subscription.status }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No subscriptions found.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

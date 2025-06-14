@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dish.name }} - Tindimithra{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6">
+            {% if dish.image %}
+                <img src="{{ dish.image.url }}" class="img-fluid rounded shadow" alt="{{ dish.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'meals:dish_list' %}">Menu</a></li>
+                    <li class="breadcrumb-item active">{{ dish.name }}</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-3">{{ dish.name }}</h1>
+            <p class="lead mb-4">{{ dish.description }}</p>
+
+            <div class="mb-4">
+                <h5>Details</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Chef:</strong> {{ dish.chef.username }}</li>
+                    <li><strong>Type:</strong> {% if dish.is_veg %}Vegetarian{% else %}Non-Vegetarian{% endif %}</li>
+                    <li><strong>Price:</strong> ₹{{ dish.price }}</li>
+                    <li><strong>Available:</strong> {% if dish.is_available %}Yes{% else %}No{% endif %}</li>
+                </ul>
+            </div>
+
+            {% if user.is_authenticated and not user.is_chef and dish.is_available %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'meals:create_order' %}?dish={{ dish.id }}" class="btn btn-primary btn-lg">Order Now</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Reviews</h3>
+            {% if dish.reviews.exists %}
+                {% for review in dish.reviews.all %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">{{ review.title }}</h5>
+                                <div class="text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="card-text">{{ review.comment }}</p>
+                            <small class="text-muted">
+                                By {% if review.anonymous %}Anonymous{% else %}{{ review.customer.username }}{% endif %} 
+                                on {{ review.created_at|date:"F d, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No reviews yet.</p>
+            {% endif %}
+
+            {% if user.is_authenticated and not user.is_chef %}
+                <div class="mt-4">
+                    <a href="{% url 'meals:create_review' dish.id %}" class="btn btn-outline-primary">Write a Review</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

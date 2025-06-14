@@ -10,6 +10,7 @@ class Dish(models.Model):
     image = models.ImageField(upload_to='dishes/')
     is_veg = models.BooleanField(default=True)
     is_available = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateTimeField()
 

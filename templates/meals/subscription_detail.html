@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Details - Tindimithra{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Subscription Details</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">{{ subscription.plan_name }}</h5>
+            <p class="card-text">Chef: {{ subscription.chef.get_full_name }}</p>
+            <p class="card-text">Status: {{ subscription.status }}</p>
+            <p class="card-text">Start Date: {{ subscription.start_date }}</p>
+            <p class="card-text">End Date: {{ subscription.end_date }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -18,7 +18,9 @@ class ChefProfile(models.Model):
     experience_years = models.PositiveIntegerField(default=0)
     profile_picture = models.ImageField(upload_to='chef_profiles/', blank=True, null=True)
     kitchen_license_image = models.ImageField(upload_to='chef_licenses/')
-    bank_details = models.JSONField()  # Store bank account details securely
+    bank_details = models.TextField(null=True, blank=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,4 +35,4 @@ def create_chef_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_chef_profile(sender, instance, **kwargs):
     if instance.is_chef:
-        instance.chefprofile.save()
+        ChefProfile.objects.get_or_create(user=instance)

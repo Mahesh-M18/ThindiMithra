@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Create Subscription - Tindimithra{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Create Subscription</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Chef</label>
+                    <select name="chef" class="form-control" required>
+                        {% for chef in chefs %}
+                            <option value="{{ chef.id }}">{{ chef.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Plan Name</label>
+                    <input type="text" name="plan_name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="end_date" class="form-control" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Create Subscription</button>
+                    <a href="{% url 'meals:subscription_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

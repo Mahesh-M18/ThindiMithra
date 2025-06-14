@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Subscriptions - Tindimithra{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Subscriptions</h2>
+    {% if subscriptions %}
+        <div class="row">
+            {% for subscription in subscriptions %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ subscription.plan_name }}</h5>
+                            <p class="card-text">Chef: {{ subscription.chef.get_full_name }}</p>
+                            <p class="card-text">Status: {{ subscription.status }}</p>
+                            <p class="card-text">Start Date: {{ subscription.start_date }}</p>
+                            <p class="card-text">End Date: {{ subscription.end_date }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No subscriptions found.</p>
+    {% endif %}
+</div>
+{% endblock %} 

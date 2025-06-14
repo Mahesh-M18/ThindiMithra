@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - Tindimithra{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% if order %}
+                        <li class="breadcrumb-item"><a href="{% url 'order_detail' order.id %}">Order #{{ order.id }}</a></li>
+                    {% elif subscription %}
+                        <li class="breadcrumb-item"><a href="{% url 'subscription_detail' subscription.id %}">Subscription #{{ subscription.id }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">Payment</li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4">Payment Details</h2>
+                            
+                            <div class="mb-4">
+                                <h5>Order Summary</h5>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            {% if order %}
+                                                <tr>
+                                                    <td>Order Total</td>
+                                                    <td class="text-end">₹{{ order.total_amount }}</td>
+                                                </tr>
+                                            {% elif subscription %}
+                                                <tr>
+                                                    <td>Subscription Plan</td>
+                                                    <td class="text-end">{{ subscription.plan.name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Monthly Amount</td>
+                                                    <td class="text-end">₹{{ subscription.plan.price }}</td>
+                                                </tr>
+                                            {% endif %}
+                                            <tr>
+                                                <td>Payment Method</td>
+                                                <td class="text-end">{{ payment_method|title }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <form method="post" id="payment-form">
+                                {% csrf_token %}
+                                
+                                {% if payment_method == 'online' %}
+                                    <div class="mb-3">
+                                        <label for="card_number" class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" id="card_number" name="card_number" required>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="expiry_date" class="form-label">Expiry Date</label>
+                                            <input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cvv" name="cvv" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="card_name" class="form-label">Name on Card</label>
+                                        <input type="text" class="form-control" id="card_name" name="card_name" required>
+                                    </div>
+                                {% endif %}
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        {% if payment_method == 'online' %}
+                                            Pay Now
+                                        {% else %}
+                                            Confirm Payment
+                                        {% endif %}
+                                    </button>
+                                    <a href="{% if order %}{% url 'order_detail' order.id %}{% else %}{% url 'subscription_detail' subscription.id %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Payment Information</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✓ Secure payment processing</li>
+                                <li class="mb-2">✓ Multiple payment options</li>
+                                <li class="mb-2">✓ Instant confirmation</li>
+                                <li class="mb-2">✓ Protected by SSL encryption</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if payment_method == 'online' %}
+<script>
+document.getElementById('payment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Add payment processing logic here
+    // For example, using Stripe.js or other payment gateway
+    this.submit();
+});
+</script>
+{% endif %}
+{% endblock %} 
